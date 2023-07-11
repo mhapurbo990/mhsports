@@ -23,7 +23,7 @@ def credit():
 @app.route("/api/<string:channel_id>.m3u8")
 def handle_api(channel_id):
     
-    source_code = requests.get(f"https://pipcast.cc/embed.php?v={channel_id}&vw=100%&vh=100%").text 
+    source_code = requests.get(f"https://pipcast.cc/embed2.php?v={channel_id}&vw=100%&vh=100%").text 
     print(source_code)
     regex = r"source:\s*['\"](.*?)['\"]"
     print(regex)
