@@ -5,7 +5,7 @@ import re
 
 app = Flask(name)
 
-headers2 = {"Referer": "https://millionscast.com/"}
+headers2 = {"Referer": "https://crichdplayer.xyz/"}
 headers = {
     'Referer': 'https://pipcast.cc/'
 }
