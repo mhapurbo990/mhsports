@@ -58,7 +58,7 @@ def handle_ts():
 def handle_api2():
     channel_id = request.args.get("id")
 
-    response = requests.get(f"https://millionscast.com/crichdwas.php?player=desktop&live={channel_id}", headers={"Referer": "https://stream.crichd.vip/"})
+    response = requests.get(f"https://crichdplayer.xyz/embed2.php?id=willow&v=m&q=Willow Cricket{channel_id}", headers={"Referer": "https://crichdplayer.xyz/"})
 
     match_string = "return("
     if "return(" not in response.text:
