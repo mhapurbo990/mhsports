@@ -5,7 +5,7 @@ import re
 
 app = Flask(name)
 
-headers2 = {"Referer": "https://crichdplayer.xyz/"}
+headers2 = {"Referer": "https://millionscast.com/"}
 headers = {
     'Referer': 'https://pipcast.cc/'
 }
@@ -18,12 +18,12 @@ def get_base_url(url):
 
 @app.route("/")
 def credit():
-    return "(CricHD-API) Made With ðŸ’— By MH SPORTS"
+    return "(CricHD-API) Made With ðŸ’— By ProximityBd"
 
 @app.route("/api/<string:channel_id>.m3u8")
 def handle_api(channel_id):
     
-    source_code = requests.get(f"https://pipcast.cc/embed2.php?v={channel_id}skysp2&v=m&q=Sky%20Sports%20Cricket").text 
+    source_code = requests.get(f"https://pipcast.cc/embed.php?v={channel_id}&vw=100%&vh=100%").text 
     print(source_code)
     regex = r"source:\s*['\"](.*?)['\"]"
     print(regex)
@@ -58,7 +58,7 @@ def handle_ts():
 def handle_api2():
     channel_id = request.args.get("id")
 
-    response = requests.get(f"https://crichdplayer.xyz/embed2.php?id=willow&v=m&q=Willow Cricket{channel_id}", headers={"Referer": "https://crichdplayer.xyz/"})
+    response = requests.get(f"https://millionscast.com/crichdwas.php?player=desktop&live={channel_id}", headers={"Referer": "https://stream.crichd.vip/"})
 
     match_string = "return("
     if "return(" not in response.text:
