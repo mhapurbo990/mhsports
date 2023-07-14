@@ -5,7 +5,7 @@ import re
 
 app = Flask(name)
 
-headers2 = {"Referer": "https://millionscast.com/"}
+headers2 = {"Referer": "https://lovesomecommunity.com/"}
 headers = {
     'Referer': 'https://pipcast.cc/'
 }
@@ -58,7 +58,7 @@ def handle_ts():
 def handle_api2():
     channel_id = request.args.get("id")
 
-    response = requests.get(f"https://millionscast.com/crichdwas.php?player=desktop&live={channel_id}", headers={"Referer": "https://stream.crichd.vip/"})
+    response = requests.get(f"https://lovesomecommunity.com/crichd.php?player={channel_id}", headers={"Referer": "https://stream.crichd.vip/"})
 
     match_string = "return("
     if "return(" not in response.text:
