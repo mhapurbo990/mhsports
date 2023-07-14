@@ -18,7 +18,7 @@ def get_base_url(url):
 
 @app.route("/")
 def credit():
-    return "(CricHD-API) Made With ðŸ’— By ProximityBd"
+    return "(CricHD-API) Made With ðŸ’— By apurboBd"
 
 @app.route("/api/<string:channel_id>.m3u8")
 def handle_api(channel_id):
