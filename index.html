@@ -7,56 +7,54 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body { background-color: #050a14; color: white; font-family: sans-serif; }
-        .match-card { background: #0f172a; border: 1px solid #1e293b; border-radius: 15px; margin-bottom: 15px; padding: 15px; }
+        .match-card { background: #0f172a; border: 1px solid #1e293b; border-radius: 12px; margin-bottom: 15px; padding: 15px; }
     </style>
 </head>
 <body>
-    <div class="text-center py-8 border-b border-gray-800 bg-[#111827]">
+    <div class="text-center py-6 bg-[#111827] border-b border-gray-800">
         <h1 class="text-3xl font-black text-blue-500 uppercase">MH SPORTS</h1>
-        <p class="text-gray-400 text-xs tracking-widest mt-1">DAILY SPORTS</p>
     </div>
 
-    <div class="container mx-auto p-4 max-w-2xl" id="match-container">
-        <div class="text-center py-20 text-gray-500" id="status">Loading Live Matches...</div>
+    <div class="container mx-auto p-4 max-w-xl" id="match-list">
+        <div class="text-center py-20 text-gray-500" id="loader">ম্যাচ লোড হচ্ছে... একটু অপেক্ষা করুন।</div>
     </div>
 
     <script>
-        async function loadMatches() {
+        async function getMatches() {
             const api = "https://api.cricfys.one/api/v2/live_matches";
-            try {
-                // সরাসরি ডাটা নেওয়ার চেষ্টা
-                let res = await fetch(api);
-                let data = await res.json();
-                render(data.data);
-            } catch (e) {
-                // ব্যাকআপ প্রক্সি যদি সরাসরি কাজ না করে
-                fetch("https://api.allorigins.win/get?url=" + encodeURIComponent(api))
-                .then(r => r.json()).then(d => render(JSON.parse(d.contents).data))
-                .catch(() => document.getElementById('status').innerText = "Refresh the page!");
-            }
-        }
+            // Corsproxy.io ব্যবহার করছি যা অনেক বেশি স্টেবল
+            const proxy = "https://corsproxy.io/?" + encodeURIComponent(api);
 
-        function render(matches) {
-            const container = document.getElementById('match-container');
-            if(!matches || matches.length === 0) {
-                container.innerHTML = "<p class='text-center'>No Live Matches.</p>";
-                return;
+            try {
+                const response = await fetch(proxy);
+                const data = await response.json();
+                const matches = data.data;
+                
+                const list = document.getElementById('match-list');
+                list.innerHTML = "";
+
+                if (!matches || matches.length === 0) {
+                    list.innerHTML = "<p class='text-center'>এই মুহূর্তে কোনো লাইভ ম্যাচ নেই।</p>";
+                    return;
+                }
+
+                matches.forEach(m => {
+                    list.innerHTML += `
+                    <div class="match-card">
+                        <p class="text-[10px] text-gray-500 font-bold mb-2 uppercase">${m.title}</p>
+                        <div class="flex justify-between items-center mb-4">
+                            <div class="text-center w-1/3"><img src="${m.team_a_img}" class="w-10 h-10 mx-auto rounded-full"><p class="text-[11px] mt-1">${m.team_a}</p></div>
+                            <div class="font-black text-blue-900 italic">VS</div>
+                            <div class="text-center w-1/3"><img src="${m.team_b_img}" class="w-10 h-10 mx-auto rounded-full"><p class="text-[11px] mt-1">${m.team_b}</p></div>
+                        </div>
+                        <a href="player.html?url=${btoa(m.stream_url)}" class="block w-full bg-blue-600 text-center py-2 rounded-lg font-bold">WATCH LIVE</a>
+                    </div>`;
+                });
+            } catch (err) {
+                document.getElementById('loader').innerHTML = "Server connection failed! Please Refresh.";
             }
-            container.innerHTML = "";
-            matches.forEach(m => {
-                container.innerHTML += `
-                <div class="match-card">
-                    <p class="text-[10px] text-gray-500 font-bold mb-3 uppercase">${m.title}</p>
-                    <div class="flex justify-between items-center mb-4">
-                        <div class="text-center w-5/12"><img src="${m.team_a_img}" class="w-10 h-10 mx-auto mb-1 rounded-full"><p class="text-[10px] font-bold">${m.team_a}</p></div>
-                        <div class="text-gray-700 italic font-black">VS</div>
-                        <div class="text-center w-5/12"><img src="${m.team_b_img}" class="w-10 h-10 mx-auto mb-1 rounded-full"><p class="text-[10px] font-bold">${m.team_b}</p></div>
-                    </div>
-                    <a href="player.html?url=${btoa(m.stream_url)}" class="block w-full bg-blue-600 text-center py-2 rounded-lg font-bold text-sm">WATCH NOW</a>
-                </div>`;
-            });
         }
-        loadMatches();
+        getMatches();
     </script>
 </body>
 </html>
