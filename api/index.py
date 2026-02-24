@@ -5,19 +5,28 @@ app = Flask(__name__, template_folder='../templates')
 
 @app.route('/')
 def home():
-    # সরাসরি এবং সবচেয়ে নির্ভরযোগ্য লিঙ্ক
     url = "https://api.cricfys.one/api/v2/live_matches"
+    headers = {"User-Agent": "Mozilla/5.0"}
     
     try:
-        # কোনো জটিল হেডার বা ফিল্টার ছাড়া সরাসরি রিকোয়েস্ট
-        r = requests.get(url, timeout=10)
-        data = r.json()
-        
-        # 'data' কি এর ভেতর থেকে সব ম্যাচ (Live + Upcoming) নিচ্ছে
-        all_matches = data.get('data', [])
-        
+        r = requests.get(url, headers=headers, timeout=10)
+        all_matches = r.json().get('data', [])
     except:
         all_matches = []
+        
+    # যদি API একদমই কাজ না করে, তবে এই নিচের অংশটি সাইট খালি রাখবে না
+    if not all_matches:
+        all_matches = [
+            {
+                "title": "System Check - API Syncing",
+                "team_a": "Cricfy App",
+                "team_b": "Your Web",
+                "team_a_img": "https://via.placeholder.com/100",
+                "team_b_img": "https://via.placeholder.com/100",
+                "is_live": "0",
+                "date": "Waiting for Data",
+                "stream_url": "#"
+            }
+        ]
     
-    # সব ম্যাচ আপনার HTML ডিজাইনে পাঠিয়ে দিচ্ছে
     return render_template('index.html', matches=all_matches)
