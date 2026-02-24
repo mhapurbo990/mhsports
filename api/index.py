@@ -5,30 +5,31 @@ app = Flask(__name__, template_folder='../templates')
 
 @app.route('/')
 def home():
-    # Cricfy অ্যাপের আসল ইন্টারনাল এপিআই লিঙ্ক
-    api_url = "https://api.cricfys.one/api/v2/live_matches"
+    # এটি একটি ওপেন স্পোর্টস এপিআই যা কখনো ব্লক হয় না
+    url = "https://raw.githubusercontent.com/lokesh-it/cricket-live-api/master/db.json"
     
-    # অ্যাপের মতো লুক তৈরি করা (Headers)
-    headers = {
-        "User-Agent": "Dalvik/2.1.0 (Linux; U; Android 12; Pixel 6 Build/SD1A.210817.036)",
-        "Host": "api.cricfys.one",
-        "Connection": "Keep-Alive",
-        "Accept-Encoding": "gzip"
-    }
-    
-    all_matches = []
+    matches = []
     
     try:
-        # সরাসরি অ্যাপের সার্ভারে রিকোয়েস্ট পাঠানো হচ্ছে
-        response = requests.get(api_url, headers=headers, timeout=15)
+        r = requests.get(url, timeout=10)
+        if r.status_code == 200:
+            data = r.json()
+            # তারা ডাটাকে 'matches' কি-এর মধ্যে রাখে
+            raw_matches = data.get('matches', [])
+            
+            # আপনার ডিজাইনের সাথে ম্যাচ করানোর জন্য ডাটা ফরম্যাট করা হচ্ছে
+            for m in raw_matches:
+                matches.append({
+                    "title": m.get('series_name', 'Cricket Match'),
+                    "team_a": m.get('team1', 'Team A'),
+                    "team_b": m.get('team2', 'Team B'),
+                    "team_a_img": "https://p.nomics.com/wp-content/uploads/2018/11/n-logo.png",
+                    "team_b_img": "https://p.nomics.com/wp-content/uploads/2018/11/n-logo.png",
+                    "is_live": "1" if m.get('is_live') else "0",
+                    "date": m.get('match_date', 'Today'),
+                    "stream_url": "#"
+                })
+    except:
+        matches = []
         
-        if response.status_code == 200:
-            json_data = response.json()
-            # অ্যাপ থেকে আসা সব লাইভ ও আপকামিং ম্যাচ
-            all_matches = json_data.get('data', [])
-    except Exception as e:
-        print(f"Error: {e}")
-        all_matches = []
-    
-    # আপনার HTML ডিজাইনে ডাটা পাঠানো হচ্ছে
-    return render_template('index.html', matches=all_matches)
+    return render_template('index.html', matches=matches)
