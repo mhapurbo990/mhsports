@@ -3,8 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MH SPORTS</title>
+    <title>MH SPORTS - Live & Upcoming</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        setTimeout(function(){
+           location.reload();
+        }, 60000); 
+    </script>
 </head>
 <body class="bg-[#050a14] text-white p-4 font-sans">
     <h1 class="text-center text-blue-500 text-3xl font-black mb-8 italic tracking-tighter uppercase">MH SPORTS</h1>
@@ -24,12 +29,12 @@
                     <div class="text-[10px] text-gray-500 font-bold mb-3 uppercase">{{ m.title }}</div>
                     <div class="flex justify-between items-center mb-6 px-4">
                         <div class="text-center w-5/12">
-                            <img src="{{ m.team_a_img }}" class="w-14 h-14 mx-auto rounded-full bg-gray-900 border border-gray-800 p-1">
+                            <img src="{{ m.team_a_img }}" class="w-14 h-14 mx-auto rounded-full bg-gray-900 border border-gray-800 p-1" onerror="this.src='https://via.placeholder.com/100'">
                             <p class="text-[10px] font-bold mt-2 uppercase">{{ m.team_a }}</p>
                         </div>
                         <div class="text-red-600 font-black italic animate-pulse">VS</div>
                         <div class="text-center w-5/12">
-                            <img src="{{ m.team_b_img }}" class="w-14 h-14 mx-auto rounded-full bg-gray-900 border border-gray-800 p-1">
+                            <img src="{{ m.team_b_img }}" class="w-14 h-14 mx-auto rounded-full bg-gray-900 border border-gray-800 p-1" onerror="this.src='https://via.placeholder.com/100'">
                             <p class="text-[10px] font-bold mt-2 uppercase">{{ m.team_b }}</p>
                         </div>
                     </div>
@@ -49,13 +54,13 @@
                 {% set upcoming_exists.found = true %}
                 <div class="bg-[#0f172a]/40 p-4 rounded-xl border border-gray-900 flex justify-between items-center">
                     <div class="flex items-center space-x-3 w-5/12">
-                        <img src="{{ m.team_a_img }}" class="w-8 h-8 rounded-full bg-gray-800">
+                        <img src="{{ m.team_a_img }}" class="w-8 h-8 rounded-full bg-gray-800" onerror="this.src='https://via.placeholder.com/50'">
                         <span class="text-[10px] font-bold truncate">{{ m.team_a }}</span>
                     </div>
                     <div class="text-[9px] text-blue-500 font-bold px-2 py-0.5 bg-blue-500/10 rounded border border-blue-500/20 whitespace-nowrap">{{ m.date or 'TBA' }}</div>
                     <div class="flex items-center justify-end space-x-3 w-5/12">
                         <span class="text-[10px] font-bold truncate text-right">{{ m.team_b }}</span>
-                        <img src="{{ m.team_b_img }}" class="w-8 h-8 rounded-full bg-gray-800">
+                        <img src="{{ m.team_b_img }}" class="w-8 h-8 rounded-full bg-gray-800" onerror="this.src='https://via.placeholder.com/50'">
                     </div>
                 </div>
             {% endif %}
