@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>MH SPORTS Player</title>
+    <link href="https://vjs.zencdn.net/7.20.3/video-js.css" rel="stylesheet" />
+    <script src="https://vjs.zencdn.net/7.20.3/video.min.js"></script>
+    <style>body, html { margin: 0; background: #000; height: 100%; }</style>
+</head>
+<body>
+    <video id="vid" class="video-js vjs-fill vjs-big-play-centered" controls preload="auto">
+        <source id="src" src="" type="application/x-mpegURL">
+    </video>
+    <script>
+        const url = new URLSearchParams(window.location.search).get('url');
+        if(url) {
+            const player = videojs('vid');
+            player.src({ src: atob(url), type: 'application/x-mpegURL' });
+            player.play();
+        }
+    </script>
+</body>
+</html>
