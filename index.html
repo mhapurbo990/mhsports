@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MH SPORTS - Daily Sports</title>
+    <title>MH SPORTS</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body { background-color: #050a14; color: white; font-family: sans-serif; }
@@ -18,41 +18,52 @@
     </div>
 
     <div class="container mx-auto p-4 max-w-2xl" id="match-container">
-        <div class="text-center py-20 text-gray-500">Connecting to Live Server...</div>
+        <div class="text-center py-20 text-gray-500" id="status">Loading Live Matches...</div>
     </div>
 
     <script>
         async function loadMatches() {
             const api = "https://api.cricfys.one/api/v2/live_matches";
-            const proxy = "https://api.allorigins.win/get?url=" + encodeURIComponent(api);
             try {
-                const res = await fetch(proxy);
-                const json = await res.json();
-                const data = JSON.parse(json.contents).data || [];
-                const container = document.getElementById('match-container');
-                container.innerHTML = "";
-                data.forEach(m => {
-                    container.innerHTML += `
-                    <div class="match-card shadow-xl">
-                        <div class="flex justify-between text-[10px] text-gray-500 mb-4 font-bold uppercase">
-                            <span>${m.title}</span>
-                            ${m.is_live == 1 ? '<span class="text-red-500 animate-pulse">● LIVE</span>' : '<span>UPCOMING</span>'}
-                        </div>
-                        <div class="flex items-center justify-between text-center mb-6">
-                            <div class="w-5/12 text-center">
-                                <img src="${m.team_a_img}" class="w-14 h-14 mx-auto mb-2 rounded-full border-2 border-gray-800">
-                                <p class="text-xs font-bold">${m.team_a}</p>
-                            </div>
-                            <div class="text-lg font-black italic text-gray-700">VS</div>
-                            <div class="w-5/12 text-center">
-                                <img src="${m.team_b_img}" class="w-14 h-14 mx-auto mb-2 rounded-full border-2 border-gray-800">
-                                <p class="text-xs font-bold">${m.team_b}</p>
-                            </div>
-                        </div>
-                        <a href="player.html?url=${btoa(m.stream_url)}" class="block w-full bg-blue-600 text-center py-3 rounded-xl font-bold text-sm shadow-lg">WATCH NOW</a>
-                    </div>`;
-                });
-            } catch (e) { document.getElementById('match-container').innerHTML = "Server Busy!"; }
+                // সরাসরি fetch করার চেষ্টা করছি
+                let res = await fetch(api);
+                if (!res.ok) throw new Error();
+                let data = await res.json();
+                displayMatches(data.data);
+            } catch (e) {
+                // যদি কাজ না করে তবে ব্যাকআপ প্রক্সি
+                try {
+                    let backupRes = await fetch("https://api.allorigins.win/get?url=" + encodeURIComponent(api));
+                    let backupData = await backupRes.json();
+                    displayMatches(JSON.parse(backupData.contents).data);
+                } catch (err) {
+                    document.getElementById('status').innerHTML = "Server Busy! Please Refresh.";
+                }
+            }
+        }
+
+        function displayMatches(matches) {
+            const container = document.getElementById('match-container');
+            if (!matches || matches.length === 0) {
+                container.innerHTML = "<p class='text-center'>No Live Matches Right Now.</p>";
+                return;
+            }
+            container.innerHTML = "";
+            matches.forEach(m => {
+                container.innerHTML += `
+                <div class="match-card">
+                    <div class="flex justify-between text-[10px] text-gray-500 mb-4 font-bold uppercase">
+                        <span>${m.title}</span>
+                        ${m.is_live == 1 ? '<span class="text-red-500 animate-pulse">● LIVE</span>' : '<span>UPCOMING</span>'}
+                    </div>
+                    <div class="flex items-center justify-between text-center mb-6">
+                        <div class="w-5/12"><img src="${m.team_a_img}" class="w-12 h-12 mx-auto mb-2 rounded-full border border-gray-700"><p class="text-xs font-bold">${m.team_a}</p></div>
+                        <div class="text-lg font-black italic text-gray-700">VS</div>
+                        <div class="w-5/12"><img src="${m.team_b_img}" class="w-12 h-12 mx-auto mb-2 rounded-full border border-gray-700"><p class="text-xs font-bold">${m.team_b}</p></div>
+                    </div>
+                    <a href="player.html?url=${btoa(m.stream_url)}" class="block w-full bg-blue-600 text-center py-3 rounded-xl font-bold text-sm">WATCH NOW</a>
+                </div>`;
+            });
         }
         loadMatches();
     </script>
