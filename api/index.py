@@ -5,47 +5,30 @@ app = Flask(__name__, template_folder='../templates')
 
 @app.route('/')
 def home():
-    # সরাসরি Cricfy এর পাবলিক API লিঙ্ক
-    api_url = "https://raw.githubusercontent.com/Cricfy/Cricfy-API/main/live.json"
+    # Cricfy অ্যাপের আসল ইন্টারনাল এপিআই লিঙ্ক
+    api_url = "https://api.cricfys.one/api/v2/live_matches"
     
+    # অ্যাপের মতো লুক তৈরি করা (Headers)
     headers = {
-        "User-Agent": "Mozilla/5.0",
-        "Accept": "application/json"
+        "User-Agent": "Dalvik/2.1.0 (Linux; U; Android 12; Pixel 6 Build/SD1A.210817.036)",
+        "Host": "api.cricfys.one",
+        "Connection": "Keep-Alive",
+        "Accept-Encoding": "gzip"
     }
     
     all_matches = []
     
     try:
-        r = requests.get(api_url, headers=headers, timeout=8)
-        if r.status_code == 200:
-            data = r.json()
-            all_matches = data if isinstance(data, list) else data.get('data', [])
-    except:
+        # সরাসরি অ্যাপের সার্ভারে রিকোয়েস্ট পাঠানো হচ্ছে
+        response = requests.get(api_url, headers=headers, timeout=15)
+        
+        if response.status_code == 200:
+            json_data = response.json()
+            # অ্যাপ থেকে আসা সব লাইভ ও আপকামিং ম্যাচ
+            all_matches = json_data.get('data', [])
+    except Exception as e:
+        print(f"Error: {e}")
         all_matches = []
-
-    # যদি উপরের API কাজ না করে, তবে নিচের এই ম্যাচগুলো আপনার সাইটে দেখাবেই (গ্যারান্টিড)
-    if not all_matches:
-        all_matches = [
-            {
-                "title": "API Connection Error - Showing Demo",
-                "team_a": "System",
-                "team_b": "Active",
-                "team_a_img": "https://via.placeholder.com/100",
-                "team_b_img": "https://via.placeholder.com/100",
-                "is_live": "1",
-                "date": "Checking Fix",
-                "stream_url": "#"
-            },
-            {
-                "title": "Upcoming Feature",
-                "team_a": "MH",
-                "team_b": "Sports",
-                "team_a_img": "https://via.placeholder.com/100",
-                "team_b_img": "https://via.placeholder.com/100",
-                "is_live": "0",
-                "date": "Coming Soon",
-                "stream_url": "#"
-            }
-        ]
     
+    # আপনার HTML ডিজাইনে ডাটা পাঠানো হচ্ছে
     return render_template('index.html', matches=all_matches)
