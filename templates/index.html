@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>MH SPORTS LIVE</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-black text-white p-4">
+    <h1 class="text-center text-blue-500 text-2xl font-bold mb-6 italic">MH SPORTS</h1>
+    <div class="max-w-xl mx-auto">
+        {% if matches %}
+            {% for m in matches %}
+            <div class="bg-gray-900 mb-4 p-4 rounded-xl border border-gray-800 shadow-lg">
+                <div class="text-[10px] text-gray-500 uppercase font-bold mb-3 tracking-widest">{{ m.title }}</div>
+                <div class="flex justify-between items-center mb-5">
+                    <div class="text-center w-5/12">
+                        <img src="{{ m.team_a_img }}" class="w-12 h-12 mx-auto rounded-full border-2 border-gray-800 p-1">
+                        <p class="text-xs font-bold mt-2">{{ m.team_a }}</p>
+                    </div>
+                    <div class="text-red-600 font-black italic">VS</div>
+                    <div class="text-center w-5/12">
+                        <img src="{{ m.team_b_img }}" class="w-14 h-14 mx-auto rounded-full border-2 border-gray-800 p-1">
+                        <p class="text-xs font-bold mt-2">{{ m.team_b }}</p>
+                    </div>
+                </div>
+                <a href="{{ m.stream_url }}" class="block w-full bg-blue-700 text-center py-3 rounded-lg font-bold text-sm transition">WATCH LIVE</a>
+            </div>
+            {% endfor %}
+        {% else %}
+            <p class="text-center text-gray-600 italic">No Matches Available At This Moment</p>
+        {% endif %}
+    </div>
+</body>
+</html>
