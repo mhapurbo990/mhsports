@@ -5,27 +5,29 @@ app = Flask(__name__, template_folder='../templates')
 
 @app.route('/')
 def home():
-    # এটি একটি ওপেন সোর্স ক্রিকেট এপিআই যা কখনো ব্লক হয় না
-    url = "https://cricket-live-data.vercel.app/matches" 
+    # Sportzfy এর পাবলিক মিরর এপিআই লিঙ্ক
+    url = "https://raw.githubusercontent.com/swadhin-it/Sportzfy-API/main/live.json"
+    
+    headers = {
+        "User-Agent": "SportzfyApp/2.1",
+        "Accept": "application/json"
+    }
     
     matches = []
+    
     try:
-        r = requests.get(url, timeout=10)
-        data = r.json()
-        raw_matches = data.get('matches', [])
-        
-        for m in raw_matches:
-            matches.append({
-                "title": m.get('event', 'Cricket Match'),
-                "team_a": m.get('team1', 'TBA'),
-                "team_b": m.get('team2', 'TBA'),
-                "team_a_img": "https://p.nomics.com/wp-content/uploads/2018/11/n-logo.png",
-                "team_b_img": "https://p.nomics.com/wp-content/uploads/2018/11/n-logo.png",
-                "is_live": "1" if m.get('status') == 'live' else "0",
-                "date": m.get('date', 'Today'),
-                "stream_url": "#" 
-            })
-    except:
-        matches = []
-        
+        r = requests.get(url, headers=headers, timeout=10)
+        if r.status_code == 200:
+            data = r.json()
+            # Sportzfy ডাটা ফরম্যাট অনুযায়ী লিস্ট নেওয়া হচ্ছে
+            matches = data if isinstance(data, list) else data.get('data', [])
+            
+    except Exception as e:
+        # যদি মেইন লিঙ্ক কাজ না করে তবে ব্যাকআপ
+        try:
+            r2 = requests.get("https://raw.githubusercontent.com/Cricfy/Cricfy-API/main/live.json")
+            matches = r2.json()
+        except:
+            matches = []
+            
     return render_template('index.html', matches=matches)
