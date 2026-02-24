@@ -5,26 +5,19 @@ app = Flask(__name__, template_folder='../templates')
 
 @app.route('/')
 def home():
-    # Cricfy-এর সবচেয়ে লেটেস্ট এবং ফাস্ট API
-    api_url = "https://api.cricfys.one/api/v3/live_matches"
-    
-    headers = {
-        "User-Agent": "Cricfy-App/3.0",
-        "Referer": "https://cricfys.one/",
-        "Origin": "https://cricfys.one"
-    }
+    # সরাসরি API কাজ না করলে আমরা অল্টারনেট প্রক্সি ব্যবহার করছি
+    api_url = "https://api.allorigins.win/get?url=" + requests.utils.quote("https://api.cricfys.one/api/v2/live_matches")
     
     try:
-        # এখানে আমরা v3 ব্যবহার করছি যা সরাসরি ডাটা দিবেই
-        r = requests.get(api_url, headers=headers, timeout=10)
-        json_data = r.json()
-        matches = json_data.get('data', [])
-        
-        # যদি ডাটা খালি আসে তবে v2 ট্রাই করবে
-        if not matches:
-            r2 = requests.get("https://api.cricfys.one/api/v2/live_matches", headers=headers, timeout=5)
-            matches = r2.json().get('data', [])
-            
+        r = requests.get(api_url, timeout=15)
+        if r.status_code == 200:
+            # AllOrigins ডাটা 'contents' এর ভেতরে স্ট্রিং হিসেবে পাঠায়
+            contents = r.json().get('contents')
+            import json
+            data = json.loads(contents)
+            matches = data.get('data', [])
+        else:
+            matches = []
     except:
         matches = []
     
