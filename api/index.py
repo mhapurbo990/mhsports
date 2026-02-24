@@ -5,18 +5,27 @@ app = Flask(__name__, template_folder='../templates')
 
 @app.route('/')
 def home():
-    # সরাসরি Cricfy-এর আসল API লিঙ্ক
-    api_url = "https://api.cricfys.one/api/v2/live_matches"
+    # Cricfy-এর সবচেয়ে লেটেস্ট এবং ফাস্ট API
+    api_url = "https://api.cricfys.one/api/v3/live_matches"
+    
     headers = {
-        "User-Agent": "Mozilla/5.0",
-        "Referer": "https://cricfys.one/"
+        "User-Agent": "Cricfy-App/3.0",
+        "Referer": "https://cricfys.one/",
+        "Origin": "https://cricfys.one"
     }
     
     try:
+        # এখানে আমরা v3 ব্যবহার করছি যা সরাসরি ডাটা দিবেই
         r = requests.get(api_url, headers=headers, timeout=10)
-        # যদি API কাজ না করে তবে বিকল্প ট্রাই করবে
-        data = r.json().get('data', [])
-    except:
-        data = []
+        json_data = r.json()
+        matches = json_data.get('data', [])
         
-    return render_template('index.html', matches=data)
+        # যদি ডাটা খালি আসে তবে v2 ট্রাই করবে
+        if not matches:
+            r2 = requests.get("https://api.cricfys.one/api/v2/live_matches", headers=headers, timeout=5)
+            matches = r2.json().get('data', [])
+            
+    except:
+        matches = []
+    
+    return render_template('index.html', matches=matches)
