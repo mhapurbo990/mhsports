@@ -3,86 +3,80 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MH SPORTS - Advanced</title>
+    <title>MH SPORTS</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body { background-color: #050a14; color: white; font-family: sans-serif; }
-        .tab-btn { padding: 10px 15px; font-weight: bold; border-radius: 8px; transition: 0.3s; cursor: pointer; font-size: 12px; }
-        .tab-btn.active { background-color: #2563eb; color: white; }
-        .tab-btn.inactive { background-color: #1e293b; color: #94a3b8; }
         .match-card { background: #0f172a; border: 1px solid #1e293b; border-radius: 15px; margin-bottom: 15px; padding: 20px; }
-        .live-pulse { width: 8px; height: 8px; background: #ef4444; border-radius: 50%; display: inline-block; margin-right: 5px; animation: pulse 1s infinite; }
+        .header-gradient { background: linear-gradient(to bottom, #111827, #050a14); border-bottom: 1px solid #1f2937; padding: 30px 0; text-align: center; }
+        .btn-filter { padding: 8px 15px; border-radius: 10px; font-size: 10px; font-weight: bold; background: #1e293b; color: #94a3b8; cursor: pointer; border: 1px solid #334155; }
+        .btn-filter.active { background: #2563eb; color: white; border-color: #2563eb; }
+        .live-dot { height: 8px; width: 8px; background-color: #ef4444; border-radius: 50%; display: inline-block; margin-right: 5px; animation: pulse 1s infinite; }
         @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
     </style>
 </head>
 <body>
-    <div class="text-center py-6 bg-[#0f172a] border-b border-gray-800 sticky top-0 z-50">
-        <h1 class="text-3xl font-black text-blue-500 uppercase tracking-tighter">MH SPORTS</h1>
-        <div class="flex justify-center space-x-2 mt-4 px-2">
-            <div id="tab-live" onclick="showCategory('live')" class="tab-btn active">LIVE</div>
-            <div id="tab-upcoming" onclick="showCategory('upcoming')" class="tab-btn inactive">UPCOMING</div>
-            <div id="tab-recent" onclick="showCategory('recent')" class="tab-btn inactive">RECENT</div>
+    <div class="header-gradient">
+        <h1 class="text-4xl font-black text-blue-500 uppercase tracking-tighter">MH SPORTS</h1>
+        <p class="text-gray-400 text-sm tracking-widest mt-1 uppercase">Daily Sports</p>
+        
+        <div class="flex justify-center space-x-2 mt-6">
+            <button id="btn-live" onclick="render('1')" class="btn-filter active">LIVE</button>
+            <button id="btn-upcoming" onclick="render('0')" class="btn-filter">UPCOMING</button>
+            <button id="btn-recent" onclick="render('2')" class="btn-filter">RECENT</button>
         </div>
     </div>
 
-    <div class="container mx-auto p-4 max-w-xl" id="match-container">
-        <div class="text-center py-20 text-gray-500">ডেটা লোড হচ্ছে...</div>
+    <div class="container mx-auto p-4 max-w-2xl" id="match-container">
+        <div class="text-center py-20 text-gray-500">Connecting to Live Server...</div>
     </div>
 
     <script>
-        let allMatches = [];
+        let matchData = [];
         const api = "https://api.cricfys.one/api/v2/live_matches";
         const proxy = "https://corsproxy.io/?";
 
-        async function loadMatches() {
+        async function loadData() {
             try {
                 const res = await fetch(proxy + encodeURIComponent(api));
                 const json = await res.json();
-                allMatches = json.data || [];
-                showCategory('live'); 
+                matchData = json.data || [];
+                render('1'); // Default show Live
             } catch (e) {
-                document.getElementById('match-container').innerHTML = "সার্ভার ব্যস্ত, আবার চেষ্টা করুন।";
+                document.getElementById('match-container').innerHTML = "<p class='text-center'>Server Busy! Please Refresh.</p>";
             }
         }
 
-        function showCategory(type) {
-            // বাটন ডিজাইন আপডেট
-            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.replace('active', 'inactive'));
-            document.getElementById(`tab-${type}`).classList.replace('inactive', 'active');
+        function render(status) {
+            // Update buttons UI
+            document.querySelectorAll('.btn-filter').forEach(b => b.classList.remove('active'));
+            if(status === '1') document.getElementById('btn-live').classList.add('active');
+            if(status === '0') document.getElementById('btn-upcoming').classList.add('active');
+            if(status === '2') document.getElementById('btn-recent').classList.add('active');
 
             const container = document.getElementById('match-container');
             container.innerHTML = "";
 
-            // CRICFy API অনুযায়ী ফিল্টার লজিক
-            let filtered = [];
-            if (type === 'live') {
-                filtered = allMatches.filter(m => m.is_live == "1");
-            } else if (type === 'upcoming') {
-                // যে ম্যাচগুলো লাইভ না (0) এবং রিসেন্ট না, সেগুলোই আপকামিং
-                filtered = allMatches.filter(m => m.is_live == "0");
-            } else {
-                // রিসেন্ট ম্যাচ সাধারণত ২ বা অন্য স্ট্যাটাসে থাকে
-                filtered = allMatches.filter(m => m.is_live == "2");
-            }
+            const filtered = matchData.filter(m => m.is_live == status);
 
             if (filtered.length === 0) {
-                container.innerHTML = `<p class="text-center py-20 text-gray-500 font-bold uppercase">No ${type} matches available!</p>`;
+                container.innerHTML = `<div class="text-center py-20 text-gray-600 font-bold uppercase tracking-widest">No Matches Found</div>`;
                 return;
             }
 
             filtered.forEach(m => {
                 container.innerHTML += `
                 <div class="match-card">
-                    <div class="flex justify-between text-[10px] text-gray-500 mb-4 font-bold uppercase">
+                    <div class="flex justify-between text-[10px] text-gray-500 mb-4 font-bold uppercase tracking-widest">
                         <span>${m.title}</span>
-                        ${m.is_live == "1" ? '<span class="text-red-500 flex items-center"><i class="live-pulse"></i> LIVE</span>' : '<span>' + (m.date || 'UPCOMING') + '</span>'}
+                        ${m.is_live == 1 ? '<span class="text-red-500 flex items-center"><i class="live-dot"></i> LIVE</span>' : '<span>' + (m.date || 'UPCOMING') + '</span>'}
                     </div>
-                    <div class="flex items-center justify-between text-center mb-6">
+                    <div class="flex items-center justify-between text-center mb-6 px-4">
                         <div class="w-5/12">
                             <img src="${m.team_a_img}" class="w-14 h-14 mx-auto mb-2 rounded-full border-2 border-gray-800 p-1">
                             <p class="text-xs font-bold">${m.team_a}</p>
                         </div>
-                        <div class="text-lg font-black italic text-gray-700">VS</div>
+                        <div class="text-lg font-black italic text-gray-800">VS</div>
                         <div class="w-5/12">
                             <img src="${m.team_b_img}" class="w-14 h-14 mx-auto mb-2 rounded-full border-2 border-gray-800 p-1">
                             <p class="text-xs font-bold">${m.team_b}</p>
@@ -93,8 +87,8 @@
             });
         }
 
-        loadMatches();
-        setInterval(loadMatches, 60000); // প্রতি ১ মিনিটে অটো রিফ্রেশ
+        loadData();
+        setInterval(loadData, 30000); // 30 second auto-refresh
     </script>
 </body>
 </html>
