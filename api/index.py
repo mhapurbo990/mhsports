@@ -3,33 +3,28 @@ import requests
 
 app = Flask(__name__, template_folder='../templates')
 
-# Emby Server URL
-BASE_URL = "http://103.111.120.114:8096"
-
 @app.route('/')
-def get_movies():
+def home():
     movies = []
+    # আপনার দেওয়া এমবি সার্ভার লিঙ্ক
+    base_url = "http://103.111.120.114:8096"
+    
     try:
-        # Emby-r public access point use kore movie fetch kora
-        # Ekhane amra 'UserId' pathachchi na karon Guest access chalu ache
-        search_url = f"{BASE_URL}/emby/Items?Recursive=True&IncludeItemTypes=Movie&Fields=PrimaryImageAspectRatio,CanDownload,Path&Limit=100"
+        # পাবলিক আইটেম এক্সেস করার লিঙ্ক
+        api_url = f"{base_url}/emby/Items?Recursive=True&IncludeItemTypes=Movie&Fields=PrimaryImageAspectRatio,CanDownload&Limit=50"
+        response = requests.get(api_url, timeout=10)
         
-        r = requests.get(search_url, timeout=15)
-        
-        if r.status_code == 200:
-            data = r.json()
-            items = data.get('Items', [])
+        if response.status_code == 200:
+            items = response.json().get('Items', [])
             for item in items:
                 m_id = item.get('Id')
                 movies.append({
                     "title": item.get('Name'),
-                    "poster": f"{BASE_URL}/emby/Items/{m_id}/Images/Primary",
-                    "stream_url": f"{BASE_URL}/emby/videos/{m_id}/stream.mp4",
-                    "download_url": f"{BASE_URL}/emby/Items/{m_id}/Download"
+                    "poster": f"{base_url}/emby/Items/{m_id}/Images/Primary",
+                    "stream_url": f"{base_url}/emby/videos/{m_id}/stream.mp4",
+                    "download_url": f"{base_url}/emby/Items/{m_id}/Download"
                 })
-        else:
-            print(f"Server error: {r.status_code}")
     except Exception as e:
-        print(f"Request failed: {e}")
+        print(f"Error: {e}")
 
     return render_template('movies.html', movies=movies)
