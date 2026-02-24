@@ -3,92 +3,68 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MH SPORTS - Live & Upcoming</title>
+    <title>MH SPORTS</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
-        body { font-family: 'Inter', sans-serif; }
-    </style>
 </head>
-<body class="bg-[#050a14] text-white p-4">
+<body class="bg-[#050a14] text-white p-4 font-sans">
     <h1 class="text-center text-blue-500 text-3xl font-black mb-8 italic tracking-tighter uppercase">MH SPORTS</h1>
     
     <div class="max-w-xl mx-auto">
-        
+        {% set live_exists = namespace(found=false) %}
+        {% set upcoming_exists = namespace(found=false) %}
+
         <h2 class="text-red-500 font-bold text-xs mb-4 flex items-center tracking-widest uppercase">
             <span class="w-2 h-2 bg-red-500 rounded-full mr-2 animate-pulse"></span> Live Now
         </h2>
         
-        {% set live_count = namespace(value=0) %}
         {% for m in matches %}
             {% if m.is_live == "1" %}
-                {% set live_count.value = live_count.value + 1 %}
-                <div class="bg-[#0f172a] mb-6 p-5 rounded-2xl border border-gray-800 shadow-2xl relative overflow-hidden">
-                    <div class="absolute top-0 left-0 w-1 h-full bg-red-600"></div>
-                    <div class="text-[10px] text-gray-500 font-bold mb-4 uppercase tracking-widest">{{ m.title }}</div>
-                    
-                    <div class="flex justify-between items-center mb-6">
+                {% set live_exists.found = true %}
+                <div class="bg-[#0f172a] mb-5 p-5 rounded-2xl border border-gray-800 shadow-xl border-l-4 border-l-red-600">
+                    <div class="text-[10px] text-gray-500 font-bold mb-3 uppercase">{{ m.title }}</div>
+                    <div class="flex justify-between items-center mb-6 px-4">
                         <div class="text-center w-5/12">
-                            <img src="{{ m.team_a_img }}" class="w-16 h-16 mx-auto rounded-full border-2 border-gray-800 p-1 bg-gray-900 shadow-lg" onerror="this.src='https://via.placeholder.com/100'">
-                            <p class="text-xs font-black mt-3 uppercase tracking-tight">{{ m.team_a }}</p>
+                            <img src="{{ m.team_a_img }}" class="w-14 h-14 mx-auto rounded-full bg-gray-900 border border-gray-800 p-1">
+                            <p class="text-[10px] font-bold mt-2 uppercase">{{ m.team_a }}</p>
                         </div>
-                        <div class="text-red-600 font-black italic text-2xl animate-pulse">VS</div>
+                        <div class="text-red-600 font-black italic animate-pulse">VS</div>
                         <div class="text-center w-5/12">
-                            <img src="{{ m.team_b_img }}" class="w-16 h-16 mx-auto rounded-full border-2 border-gray-800 p-1 bg-gray-900 shadow-lg" onerror="this.src='https://via.placeholder.com/100'">
-                            <p class="text-xs font-black mt-3 uppercase tracking-tight">{{ m.team_b }}</p>
+                            <img src="{{ m.team_b_img }}" class="w-14 h-14 mx-auto rounded-full bg-gray-900 border border-gray-800 p-1">
+                            <p class="text-[10px] font-bold mt-2 uppercase">{{ m.team_b }}</p>
                         </div>
                     </div>
-                    
-                    <a href="{{ m.stream_url }}" class="block w-full bg-blue-600 hover:bg-blue-700 text-center py-3.5 rounded-xl font-black text-sm transition-all shadow-lg uppercase tracking-wider">Watch Live Now</a>
+                    <a href="{{ m.stream_url }}" class="block w-full bg-blue-600 hover:bg-blue-700 text-center py-3 rounded-xl font-bold text-sm transition-all uppercase">Watch Live Now</a>
                 </div>
             {% endif %}
         {% endfor %}
-        
-        {% if live_count.value == 0 %}
-            <p class="text-gray-700 text-xs italic mb-10 text-center py-4 bg-gray-900/30 rounded-lg">No matches are live right now.</p>
+
+        {% if not live_exists.found %}
+            <p class="text-gray-700 text-[10px] italic mb-8">No matches live at this moment.</p>
         {% endif %}
 
-
-        <h2 class="text-blue-400 font-bold text-xs mb-4 mt-10 tracking-widest uppercase flex items-center">
-            <span class="w-2 h-2 bg-blue-400 rounded-full mr-2 opacity-50"></span> Upcoming Matches
-        </h2>
-        
-        {% set upcoming_count = namespace(value=0) %}
+        <h2 class="text-blue-400 font-bold text-xs mb-4 mt-8 tracking-widest uppercase">Upcoming Matches</h2>
         <div class="space-y-3">
         {% for m in matches %}
             {% if m.is_live != "1" %}
-                {% set upcoming_count.value = upcoming_count.value + 1 %}
-                <div class="bg-[#0f172a]/60 p-4 rounded-xl border border-gray-900 flex justify-between items-center group hover:border-gray-700 transition">
+                {% set upcoming_exists.found = true %}
+                <div class="bg-[#0f172a]/40 p-4 rounded-xl border border-gray-900 flex justify-between items-center">
                     <div class="flex items-center space-x-3 w-5/12">
-                        <img src="{{ m.team_a_img }}" class="w-9 h-9 rounded-full bg-gray-800 border border-gray-700" onerror="this.src='https://via.placeholder.com/50'">
-                        <span class="text-[11px] font-bold truncate">{{ m.team_a }}</span>
+                        <img src="{{ m.team_a_img }}" class="w-8 h-8 rounded-full bg-gray-800">
+                        <span class="text-[10px] font-bold truncate">{{ m.team_a }}</span>
                     </div>
-                    
-                    <div class="text-center px-2">
-                        <div class="text-[9px] text-blue-500 font-black px-2 py-1 bg-blue-500/10 rounded border border-blue-500/20 whitespace-nowrap">
-                            {{ m.date or 'TBA' }}
-                        </div>
-                    </div>
-
-                    <div class="flex items-center justify-end space-x-3 w-5/12 text-right">
-                        <span class="text-[11px] font-bold truncate">{{ m.team_b }}</span>
-                        <img src="{{ m.team_b_img }}" class="w-9 h-9 rounded-full bg-gray-800 border border-gray-700" onerror="this.src='https://via.placeholder.com/50'">
+                    <div class="text-[9px] text-blue-500 font-bold px-2 py-0.5 bg-blue-500/10 rounded border border-blue-500/20 whitespace-nowrap">{{ m.date or 'TBA' }}</div>
+                    <div class="flex items-center justify-end space-x-3 w-5/12">
+                        <span class="text-[10px] font-bold truncate text-right">{{ m.team_b }}</span>
+                        <img src="{{ m.team_b_img }}" class="w-8 h-8 rounded-full bg-gray-800">
                     </div>
                 </div>
             {% endif %}
         {% endfor %}
         </div>
 
-        {% if upcoming_count.value == 0 %}
-            <p class="text-gray-700 text-xs italic text-center py-4 bg-gray-900/30 rounded-lg">No upcoming matches scheduled.</p>
+        {% if not upcoming_exists.found %}
+            <p class="text-gray-700 text-[10px] italic mt-2">No upcoming matches found.</p>
         {% endif %}
-
-    </div>
-
-    <div class="mt-16 pb-10 text-center">
-        <button onclick="location.reload()" class="text-[10px] text-gray-600 hover:text-blue-500 transition uppercase tracking-widest border border-gray-800 px-4 py-2 rounded-full">
-            Refresh Server Update
-        </button>
     </div>
 </body>
 </html>
