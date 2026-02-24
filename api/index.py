@@ -1,37 +1,23 @@
 from flask import Flask, render_template
-import urllib.request
-import json
+import requests
 
 app = Flask(__name__, template_folder='../templates')
 
 @app.route('/')
 def home():
-    api_url = "https://api.cricfys.one/api/v2/live_matches"
-    headers = {
-        "User-Agent": "Mozilla/5.0",
-        "Referer": "https://cricfys.one/"
-    }
-    
-    all_matches = []
+    # সরাসরি এবং সবচেয়ে নির্ভরযোগ্য লিঙ্ক
+    url = "https://api.cricfys.one/api/v2/live_matches"
     
     try:
-        # urllib ব্যবহার করে ডেটা ফেচ করা হচ্ছে
-        req = urllib.request.Request(api_url, headers=headers)
-        with urllib.request.urlopen(req, timeout=10) as response:
-            if response.getcode() == 200:
-                raw_data = response.read().decode('utf-8')
-                json_data = json.loads(raw_data)
-                all_matches = json_data.get('data', [])
-    except Exception as e:
-        # মেইন লিঙ্ক কাজ না করলে ব্যাকআপ লিঙ্ক
-        try:
-            backup_url = "https://raw.githubusercontent.com/Cricfy/Cricfy-API/main/live.json"
-            with urllib.request.urlopen(backup_url, timeout=5) as backup_res:
-                raw_data = backup_res.read().decode('utf-8')
-                json_data = json.loads(raw_data)
-                all_matches = json_data.get('data', []) if isinstance(json_data, dict) else json_data
-        except:
-            all_matches = []
+        # কোনো জটিল হেডার বা ফিল্টার ছাড়া সরাসরি রিকোয়েস্ট
+        r = requests.get(url, timeout=10)
+        data = r.json()
+        
+        # 'data' কি এর ভেতর থেকে সব ম্যাচ (Live + Upcoming) নিচ্ছে
+        all_matches = data.get('data', [])
+        
+    except:
+        all_matches = []
     
-    # আপনার HTML ডিজাইনে সব ম্যাচ (Live + Upcoming) পাঠানো হচ্ছে
+    # সব ম্যাচ আপনার HTML ডিজাইনে পাঠিয়ে দিচ্ছে
     return render_template('index.html', matches=all_matches)
