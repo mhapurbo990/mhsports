@@ -1,75 +1,35 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MH SPORTS - Live & Upcoming</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        setTimeout(function(){
-           location.reload();
-        }, 60000); 
-    </script>
-</head>
-<body class="bg-[#050a14] text-white p-4 font-sans">
-    <h1 class="text-center text-blue-500 text-3xl font-black mb-8 italic tracking-tighter uppercase">MH SPORTS</h1>
+<a href="#" onclick="playStream('{{ m.stream_url }}'); return false;">
+    </a>
+
+<div id="playerContainer" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:#000; z-index:9999;">
+    <button onclick="closePlayer()" style="position:absolute; top:20px; right:20px; color:#fff; font-size:30px; border:none; background:none; cursor:pointer;">&times;</button>
+    <video id="videoPlayer" controls autoplay style="width:100%; height:100%;"></video>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+<script>
+function playStream(url) {
+    const video = document.getElementById('videoPlayer');
+    const container = document.getElementById('playerContainer');
+    container.style.display = 'block';
+
+    if (Hls.isSupported()) {
+        const hls = new Hls();
+        hls.loadSource(url);
+        hls.attachMedia(video);
+    } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+        video.src = url;
+    }
     
-    <div class="max-w-xl mx-auto">
-        {% set live_exists = namespace(found=false) %}
-        {% set upcoming_exists = namespace(found=false) %}
+    // Auto Fullscreen request
+    if (video.requestFullscreen) video.requestFullscreen();
+    else if (video.webkitRequestFullscreen) video.webkitRequestFullscreen();
+    else if (video.msRequestFullscreen) video.msRequestFullscreen();
+}
 
-        <h2 class="text-red-500 font-bold text-xs mb-4 flex items-center tracking-widest uppercase">
-            <span class="w-2 h-2 bg-red-500 rounded-full mr-2 animate-pulse"></span> Live Now
-        </h2>
-        
-        {% for m in matches %}
-            {% if m.is_live == "1" %}
-                {% set live_exists.found = true %}
-                <div class="bg-[#0f172a] mb-5 p-5 rounded-2xl border border-gray-800 shadow-xl border-l-4 border-l-red-600">
-                    <div class="text-[10px] text-gray-500 font-bold mb-3 uppercase">{{ m.title }}</div>
-                    <div class="flex justify-between items-center mb-6 px-4">
-                        <div class="text-center w-5/12">
-                            <img src="{{ m.team_a_img }}" class="w-14 h-14 mx-auto rounded-full bg-gray-900 border border-gray-800 p-1" onerror="this.src='https://via.placeholder.com/100'">
-                            <p class="text-[10px] font-bold mt-2 uppercase">{{ m.team_a }}</p>
-                        </div>
-                        <div class="text-red-600 font-black italic animate-pulse">VS</div>
-                        <div class="text-center w-5/12">
-                            <img src="{{ m.team_b_img }}" class="w-14 h-14 mx-auto rounded-full bg-gray-900 border border-gray-800 p-1" onerror="this.src='https://via.placeholder.com/100'">
-                            <p class="text-[10px] font-bold mt-2 uppercase">{{ m.team_b }}</p>
-                        </div>
-                    </div>
-                    <a href="{{ m.stream_url }}" class="block w-full bg-blue-600 hover:bg-blue-700 text-center py-3 rounded-xl font-bold text-sm transition-all uppercase">Watch Live Now</a>
-                </div>
-            {% endif %}
-        {% endfor %}
-
-        {% if not live_exists.found %}
-            <p class="text-gray-700 text-[10px] italic mb-8">No matches live at this moment.</p>
-        {% endif %}
-
-        <h2 class="text-blue-400 font-bold text-xs mb-4 mt-8 tracking-widest uppercase">Upcoming Matches</h2>
-        <div class="space-y-3">
-        {% for m in matches %}
-            {% if m.is_live != "1" %}
-                {% set upcoming_exists.found = true %}
-                <div class="bg-[#0f172a]/40 p-4 rounded-xl border border-gray-900 flex justify-between items-center">
-                    <div class="flex items-center space-x-3 w-5/12">
-                        <img src="{{ m.team_a_img }}" class="w-8 h-8 rounded-full bg-gray-800" onerror="this.src='https://via.placeholder.com/50'">
-                        <span class="text-[10px] font-bold truncate">{{ m.team_a }}</span>
-                    </div>
-                    <div class="text-[9px] text-blue-500 font-bold px-2 py-0.5 bg-blue-500/10 rounded border border-blue-500/20 whitespace-nowrap">{{ m.date or 'TBA' }}</div>
-                    <div class="flex items-center justify-end space-x-3 w-5/12">
-                        <span class="text-[10px] font-bold truncate text-right">{{ m.team_b }}</span>
-                        <img src="{{ m.team_b_img }}" class="w-8 h-8 rounded-full bg-gray-800" onerror="this.src='https://via.placeholder.com/50'">
-                    </div>
-                </div>
-            {% endif %}
-        {% endfor %}
-        </div>
-
-        {% if not upcoming_exists.found %}
-            <p class="text-gray-700 text-[10px] italic mt-2">No upcoming matches found.</p>
-        {% endif %}
-    </div>
-</body>
-</html>
+function closePlayer() {
+    const video = document.getElementById('videoPlayer');
+    document.getElementById('playerContainer').style.display = 'none';
+    video.pause();
+}
+</script>
