@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MHSports Movie Library</title>
+    <style>
+        body { background: #080808; color: white; font-family: 'Arial', sans-serif; margin: 0; padding-bottom: 50px; }
+        .nav { background: #111; padding: 15px; text-align: center; border-bottom: 2px solid #e50914; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 15px; padding: 20px; }
+        .card { background: #1a1a1a; border-radius: 8px; overflow: hidden; transition: 0.3s; border: 1px solid #333; }
+        .card:hover { transform: translateY(-5px); border-color: #e50914; }
+        .card img { width: 100%; height: 220px; object-fit: cover; }
+        .card-info { padding: 10px; text-align: center; }
+        .card-title { font-size: 13px; height: 35px; overflow: hidden; margin-bottom: 10px; }
+        .btn-grp { display: flex; gap: 5px; }
+        .btn { flex: 1; padding: 7px; font-size: 11px; border: none; cursor: pointer; border-radius: 4px; font-weight: bold; text-decoration: none; color: white; text-align: center; }
+        .watch { background: #e50914; }
+        .down { background: #333; }
+    </style>
+</head>
+<body>
+    <div class="nav"><h2>MHSports Movie Server</h2></div>
+    <div class="grid">
+        {% for m in movies %}
+        <div class="card">
+            <img src="{{ m.poster }}" onerror="this.src='https://via.placeholder.com/150x220?text=No+Poster'">
+            <div class="card-info">
+                <div class="card-title">{{ m.title }}</div>
+                <div class="btn-grp">
+                    <a href="{{ m.stream_url }}" class="btn watch" target="_blank">WATCH</a>
+                    <a href="{{ m.download_url }}" class="btn down">DOWNLOAD</a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</body>
+</html>
