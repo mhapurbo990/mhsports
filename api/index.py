@@ -6,20 +6,19 @@ app = Flask(__name__, template_folder='../templates')
 @app.route('/')
 def home():
     api_url = "https://api.cricfys.one/api/v2/live_matches"
-    live_matches = []
-    upcoming_matches = []
+    all_matches = []
     
     try:
+        # সরাসরি API কল করে সব ডেটা নিয়ে আসবে
         r = requests.get(api_url, timeout=10)
-        data = r.json().get('data', [])
+        json_data = r.json()
         
-        # লাইভ এবং আপকামিং ম্যাচ আলাদা করা
-        for m in data:
-            if m.get('is_live') == "1":
-                live_matches.append(m)
-            elif m.get('is_live') == "0":
-                upcoming_matches.append(m)
-    except:
-        pass
+        # API এর ভেতরে 'data' লিস্টে যা আছে সব নিয়ে নিবে
+        all_matches = json_data.get('data', [])
+        
+    except Exception as e:
+        print(f"Error: {e}")
+        all_matches = []
     
-    return render_template('index.html', live=live_matches, upcoming=upcoming_matches)
+    # কোনো ভাগাভাগি নেই, সব ম্যাচ একসাথে পাঠিয়ে দিবে
+    return render_template('index.html', matches=all_matches)
